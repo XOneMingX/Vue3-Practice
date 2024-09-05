@@ -1,85 +1,39 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { ref, onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useArticlesStore } from '@/stores/articles'
+import AppBar from './components/AppBar.vue'
+
+interface Article {
+  id: number
+  title: string
+  content: string
+  author: string
+  createDate: Date
+}
+
+const articleStore = useArticlesStore()
+
+onMounted(() => {
+  const articles = ref<Article[]>([
+    { id: 1, title: 'Test1', author: 'TestA1', content: '1', createDate: new Date() },
+    { id: 2, title: 'Test2', author: 'TestA2', content: '2', createDate: new Date() },
+    { id: 3, title: 'Test3', author: 'TestA3', content: '3', createDate: new Date() },
+    { id: 4, title: 'Test4', author: 'TestA4', content: '4', createDate: new Date() },
+    { id: 5, title: 'Test5', author: 'TestA5', content: '5', createDate: new Date() },
+    { id: 6, title: 'Test6', author: 'TestA6', content: '6', createDate: new Date() },
+    { id: 7, title: 'Test7', author: 'TestA7', content: '7', createDate: new Date() }
+  ])
+
+  articleStore.setArticles(articles.value)
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <AppBar />
+  <main>
+    <RouterView />
+  </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+<style scoped></style>
