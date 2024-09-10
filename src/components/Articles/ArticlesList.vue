@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 import { useArticlesStore } from '@/stores/articles'
@@ -23,7 +22,7 @@ const articlesList = articleStore.articles
         :cols="lgAndUp ? 3 : mdAndUp ? 4 : smAndUp ? 6 : 12"
         class="flex-grow-1"
       >
-        <ArticlesItem>
+        <ArticlesItem :id="article.id">
           <template #article-title> {{ article.title }} </template>
           <template #article-author> {{ article.author }} </template>
         </ArticlesItem></v-col

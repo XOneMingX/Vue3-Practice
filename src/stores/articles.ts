@@ -1,12 +1,5 @@
 import { defineStore } from 'pinia'
-
-interface Article {
-  id: number
-  title: string
-  content: string
-  author: string
-  createDate: Date
-}
+import { type Article } from '@/types/Article'
 
 export const useArticlesStore = defineStore('articles', {
   state: () => ({
