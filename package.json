@@ -13,7 +13,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@mdi/js": "^7.4.47",
     "@tinymce/tinymce-vue": "^6.0.1",
+    "axios": "^1.7.7",
     "pinia": "^2.1.7",
     "tinymce": "^7.3.0",
     "vue": "^3.4.29",

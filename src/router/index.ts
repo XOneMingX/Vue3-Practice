@@ -18,14 +18,14 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/article/:id(\\d+)',
+      path: '/article/:id',
       name: 'article',
       component: () => import('../views/ArticleView.vue')
     },
     {
       path: '/newArticle',
       name: 'newArticle',
-      component: () => import('../views/ArticleView.vue')
+      component: () => import('../views/EditArticleView.vue')
     }
   ]
 })

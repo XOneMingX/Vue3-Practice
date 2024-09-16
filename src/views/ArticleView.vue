@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
@@ -19,9 +19,9 @@ const articleData = computed<Article | null>(() => {
 </script>
 
 <template>
-  <div v-if="articleData" class="d-flex flex-column mx-15">
+  <div v-if="articleData" class="d-flex flex-column mx-15" h-100>
     <h1>{{ articleData.title }}</h1>
-    <div class="text-subtitle-1 text-grey-darken-2 mx-2">{{ articleData.subTitle }}</div>
+    <div class="text-subtitle-1 text-grey-darken-2 mx-2">{{ articleData.subtitle }}</div>
     <div class="d-flex align-center my-5">
       <div>
         <v-icon icon="mdi-account-circle" size="40" class="mx-3"></v-icon>
@@ -48,7 +48,7 @@ const articleData = computed<Article | null>(() => {
       class="align-self-center"
       cover
     ></v-img>
-    <div class="text-body-1 mt-5">{{ articleData.content }}</div>
+    <div class="text-body-1 mt-5" v-html="articleData.content"></div>
   </div>
   <div v-else>
     <p>Article not found.</p>
