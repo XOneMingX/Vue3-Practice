@@ -9,9 +9,6 @@ export const useArticlesStore = defineStore('articles', {
   actions: {
     setArticles(articles: Article[]) {
       this.articles = articles
-    },
-    addArticle(article: Article) {
-      this.articles.push(article)
     }
   }
 })

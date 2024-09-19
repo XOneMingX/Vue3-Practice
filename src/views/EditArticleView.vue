@@ -5,13 +5,11 @@ import { useRouter } from 'vue-router'
 
 import { useArticlesStore } from '@/stores/articles'
 import { type Article } from '@/types/Article'
+import articlesAxios from '@/axios/articlesAxios'
 
 const router = useRouter()
 
-const articleStore = useArticlesStore()
-
 const articleContent: Article = reactive({
-  id: 0,
   title: '',
   subtitle: '',
   content: '',
@@ -28,9 +26,8 @@ const formRef = ref()
 const submitButton = async () => {
   const isValid = await formRef.value?.validate()
   if (isValid?.valid) {
-    articleContent.id = articleStore.articles.length + 1
     console.log(articleContent)
-    articleStore.addArticle(articleContent)
+    await articlesAxios.createArticle(articleContent)
     router.push('/')
   }
 }

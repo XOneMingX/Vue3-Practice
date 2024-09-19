@@ -14,7 +14,7 @@ const articles = articleStore.articles
 // Computed property to find the article based on the route parameter
 const articleData = computed<Article | null>(() => {
   const articleId = route.params.id
-  return articles.find((a) => a.id.toString() === articleId) || null
+  return articles.find((a) => a.id?.toString() === articleId) || null
 })
 </script>
 
