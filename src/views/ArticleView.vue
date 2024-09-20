@@ -26,9 +26,12 @@ const articleData = computed<Article | null>(() => {
       <div>
         <v-icon icon="mdi-account-circle" size="40" class="mx-3"></v-icon>
       </div>
-      <div>
+      <div class="me-auto">
         <div>{{ articleData.author }}</div>
-        <div class="text-grey-darken-1">{{ new Date(articleData.createDate).toDateString() }}</div>
+        <div class="text-grey-darken-1">{{ new Date(articleData.createdTime).toDateString() }}</div>
+      </div>
+      <div>
+        <v-btn icon="mdi-pencil" variant="text" :to="`/editArticle/${route.params.id}`"></v-btn>
       </div>
     </div>
     <v-divider class="my-3" />

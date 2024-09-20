@@ -1,21 +1,67 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
-import { useArticlesStore } from '@/stores/articles'
 import { type Article } from '@/types/Article'
 import articlesAxios from '@/axios/articlesAxios'
+import { useArticlesStore } from '@/stores/articles'
+import articleAxios from '@/axios/articlesAxios'
 
 const router = useRouter()
+const route = useRoute()
+const articleStore = useArticlesStore()
+
+const articlesList = ref<Article[]>([])
+const articleId = computed(() => route.params.id)
+
+// Use onMounted to set data when the component is first loaded
+onMounted(async () => {
+  updateArticleContent()
+})
 
 const articleContent: Article = reactive({
   title: '',
   subtitle: '',
   content: '',
   author: 'Author',
-  createDate: new Date()
+  createdTime: new Date(),
+  createdUserId: 1001,
+  lastModifiedTime: new Date(),
+  lastModifiedUserId: 1001
 })
+
+// Function to update articleContent based on articleData
+const updateArticleContent = async () => {
+  if (articleStore.articles.length === 0) {
+    const response = await articleAxios.getArticles()
+    // Assign the data from the response to articles
+    articlesList.value = response.data as Article[] // Cast to Article[]
+    articleStore.setArticles(articlesList.value)
+  } else {
+    articlesList.value = articleStore.articles
+  }
+
+  if (articleId.value) {
+    const articleData = await articlesList.value.find((a) => a.id?.toString() === route.params.id)
+    Object.assign(articleContent, articleData)
+  } else {
+    // Reset to default for new article
+    Object.assign(articleContent, {
+      title: '',
+      subtitle: '',
+      content: '',
+      author: 'Author',
+      createdTime: new Date(),
+      createdUserId: 1001,
+      lastModifiedTime: new Date(),
+      lastModifiedUserId: 1001
+    })
+  }
+}
+// Watch for changes in articleId
+watch(articleId, updateArticleContent)
+
 const titleRules = [
   (value: string) => {
     if (value?.length > 0) return true
@@ -26,8 +72,9 @@ const formRef = ref()
 const submitButton = async () => {
   const isValid = await formRef.value?.validate()
   if (isValid?.valid) {
-    console.log(articleContent)
-    await articlesAxios.createArticle(articleContent)
+    articleId.value
+      ? await articleAxios.updateArticle(articleId.value, articleContent)
+      : await articlesAxios.createArticle(articleContent)
     router.push('/')
   }
 }
@@ -35,7 +82,8 @@ const submitButton = async () => {
 
 <template>
   <div>
-    <h1>New Article Editor</h1>
+    <h1 v-if="!articleId">New Article Editor</h1>
+    <h1 v-else>Edit Article</h1>
     <v-divider class="mb-5" />
     <v-form ref="formRef" fast-fail @submit.prevent="submitButton">
       <v-text-field

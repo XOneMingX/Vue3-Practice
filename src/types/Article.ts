@@ -4,5 +4,8 @@ export interface Article {
   subtitle: string
   content: string
   author: string
-  createDate: Date
+  createdTime: Date
+  createdUserId: number
+  lastModifiedTime: Date
+  lastModifiedUserId: number
 }
