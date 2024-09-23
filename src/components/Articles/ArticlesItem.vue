@@ -2,6 +2,16 @@
 import { defineProps } from 'vue'
 
 const { id } = defineProps(['id'])
+
+// // Create a reactive reference for the random image URL
+// const randomImageUrl = ref('')
+// // Function to generate a random image URL
+// const generateRandomImageUrl = () => {
+//   const randomId = Math.floor(Math.random() * 1000) // Generate a random number
+//   randomImageUrl.value = `https://picsum.photos/500/300?image=${randomId}`
+//   console.log(randomImageUrl.value)
+// }
+// generateRandomImageUrl()
 </script>
 
 <template>
