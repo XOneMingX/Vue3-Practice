@@ -5,13 +5,13 @@ const { isLoading } = useLoading()
 </script>
 
 <template>
-  <div v-if="isLoading" class="d-flex justify-center align-center">
+  <v-overlay v-model="isLoading" class="d-flex justify-center align-center">
     <v-progress-circular
-      color="blue-lighten-1"
       model-value="20"
-      :size="87"
-      :width="8"
+      color="blue-lighten-1"
       indeterminate
+      size="64"
+      :width="8"
     ></v-progress-circular>
-  </div>
+  </v-overlay>
 </template>

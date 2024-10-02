@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useDisplay } from 'vuetify'
-
 import { useArticlesStore } from '@/stores/articles'
 import { type Article } from '@/types/Article'
 import { useLoading } from '@/composables/useLoading'
@@ -10,16 +8,31 @@ import articleAxios from '@/axios/articlesAxios'
 
 const route = useRoute()
 const articleStore = useArticlesStore()
-const { smAndDown } = useDisplay()
-const articles = ref<Article[]>()
+const articles = ref<Article[]>([])
 const { isLoading, startLoading, stopLoading } = useLoading()
 
+const dataLoaded = ref(false)
+const imageLoaded = ref(false)
+
+const checkLoadingStatus = () => {
+  if (dataLoaded.value && imageLoaded.value) {
+    stopLoading()
+  }
+}
+
 onMounted(async () => {
-  if (articleStore.articles.length == 0) {
-    const fetchArticles = await articleAxios.getArticles()
-    articles.value = fetchArticles.data
-  } else {
-    articles.value = articleStore.articles
+  startLoading() // Start loading immediately
+
+  try {
+    if (articleStore.articles.length === 0) {
+      const fetchArticles = await articleAxios.getArticles()
+      articles.value = fetchArticles.data
+    } else {
+      articles.value = articleStore.articles
+    }
+  } finally {
+    dataLoaded.value = true
+    checkLoadingStatus()
   }
 })
 
@@ -33,19 +46,14 @@ const imageUrl = computed(() => {
   return `https://picsum.photos/900/400?random=${Math.random()}`
 })
 
-const simulateLoading = () => {
-  startLoading()
-  // Simulate a loading delay
-  setTimeout(() => {
-    console.log('Loading')
-    stopLoading()
-  }, 3000) // Keep loading for 3 seconds
+const onImageLoad = () => {
+  imageLoaded.value = true
+  checkLoadingStatus()
 }
-simulateLoading()
 </script>
 
 <template>
-  <div v-if="articleData && !isLoading" class="d-flex flex-column mx-15" h-100>
+  <div v-if="articleData" class="d-flex flex-column mx-15" h-100>
     <h1>{{ articleData.title }}</h1>
     <div class="text-subtitle-1 text-grey-darken-2 mx-2">{{ articleData.subtitle }}</div>
     <div class="d-flex align-center my-5">
@@ -76,10 +84,11 @@ simulateLoading()
       :src="imageUrl"
       class="align-self-center"
       cover
+      @load="onImageLoad"
     ></v-img>
     <div class="text-body-1 mt-5" v-html="articleData.content"></div>
   </div>
-  <div v-else-if="!articleData && !isLoading">
+  <div v-else-if="!isLoading">
     <p>Article not found.</p>
   </div>
 </template>
