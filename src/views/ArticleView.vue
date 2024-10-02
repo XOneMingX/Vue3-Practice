@@ -1,25 +1,51 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
 import { useArticlesStore } from '@/stores/articles'
 import { type Article } from '@/types/Article'
+import { useLoading } from '@/composables/useLoading'
+import articleAxios from '@/axios/articlesAxios'
 
 const route = useRoute()
 const articleStore = useArticlesStore()
 const { smAndDown } = useDisplay()
-const articles = articleStore.articles
+const articles = ref<Article[]>()
+const { isLoading, startLoading, stopLoading } = useLoading()
+
+onMounted(async () => {
+  if (articleStore.articles.length == 0) {
+    const fetchArticles = await articleAxios.getArticles()
+    articles.value = fetchArticles.data
+  } else {
+    articles.value = articleStore.articles
+  }
+})
 
 // Computed property to find the article based on the route parameter
 const articleData = computed<Article | null>(() => {
   const articleId = route.params.id
-  return articles.find((a) => a.id?.toString() === articleId) || null
+  return articles.value?.find((a) => a.id?.toString() === articleId) || null
 })
+
+const imageUrl = computed(() => {
+  return `https://picsum.photos/900/400?random=${Math.random()}`
+})
+
+const simulateLoading = () => {
+  startLoading()
+  // Simulate a loading delay
+  setTimeout(() => {
+    console.log('Loading')
+    stopLoading()
+  }, 3000) // Keep loading for 3 seconds
+}
+simulateLoading()
 </script>
 
 <template>
-  <div v-if="articleData" class="d-flex flex-column mx-15" h-100>
+  <div v-if="articleData && !isLoading" class="d-flex flex-column mx-15" h-100>
     <h1>{{ articleData.title }}</h1>
     <div class="text-subtitle-1 text-grey-darken-2 mx-2">{{ articleData.subtitle }}</div>
     <div class="d-flex align-center my-5">
@@ -44,16 +70,16 @@ const articleData = computed<Article | null>(() => {
     <v-divider class="my-3" />
     <v-img
       color="grey-lighten-5"
-      width="700"
-      max-height="400"
+      width="800"
+      max-height="450"
       aspect-ratio="auto"
-      src="https://picsum.photos/500/300?image=232"
+      :src="imageUrl"
       class="align-self-center"
       cover
     ></v-img>
     <div class="text-body-1 mt-5" v-html="articleData.content"></div>
   </div>
-  <div v-else>
+  <div v-else-if="!articleData && !isLoading">
     <p>Article not found.</p>
   </div>
 </template>
