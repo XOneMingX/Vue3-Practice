@@ -104,7 +104,7 @@ const submitButton = async () => {
         :init="{
           height: 500,
           menubar: false,
-          plugins: 'lists link image code tinymcespellchecker ',
+          plugins: 'lists link image code',
           spellchecker_language: 'en_US',
           toolbar:
             'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough code | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat '
