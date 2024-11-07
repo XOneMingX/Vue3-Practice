@@ -43,3 +43,7 @@ jobs:
           server_port: 587
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
+          subject: 'The Workflow has been Activated' # Add a subject here
+          to: 'yatming.work@gmail.com' # The recipient's email address
+          from: '${{ secrets.MAIL_USERNAME }}' # The sender's email address
+          body: 'The workflow has been triggered successfully!' # The email body
