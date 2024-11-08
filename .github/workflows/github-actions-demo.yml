@@ -32,19 +32,22 @@ jobs:
       - name: Build the project
         run: npm run build --if-present # Build the project if a build script is present
 
-      - name: Clean up existing artifacts
+      # Debugging step to verify output
+      - name: List build output directory
         run: |
-          echo "Cleaning up any existing artifacts..."
-          if [[ -d dist ]]; then
-            rm -rf dist/*  # Remove files in the dist directory
-          fi
+          echo "Current directory:"
+          pwd
+          echo "Contents of the project directory:"
+          ls -la
+          echo "Contents of the output directory (dist):"
+          ls -la dist || echo "The dist directory does not exist."
 
       - name: Upload built files
-        if: github.ref == 'refs/heads/main'
-        id: upload
-        uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
+        uses: actions/upload-artifact@v3
+        id: deployment
         with:
-          path: dist
+          name: github-pages
+          path: dist/*
 
       - name: Cleanup
         run: |
@@ -53,16 +56,20 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
+    # Add a dependency to the build job
     needs: build
 
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
       pages: write # to deploy to Pages
       id-token: write # to verify the deployment originates from an appropriate source
 
+    # Deploy to the github-pages environment
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
