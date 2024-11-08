@@ -43,11 +43,11 @@ jobs:
           ls -la dist || echo "The dist directory does not exist."
 
       - name: Upload built files
-        uses: actions/upload-artifact@v3
-        id: deployment
+        if: github.ref == 'refs/heads/main'
+        id: upload
+        uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
         with:
-          name: github-pages
-          path: dist/*
+          path: dist/* # Corrected path to the built artifacts
 
       - name: Cleanup
         run: |
