@@ -10,32 +10,46 @@ on:
       - develop/github-actions
 
 jobs:
+  # Build job
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [18.x, 20.x] # Specify the Node.js versions to test against
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build --if-present
+          cache: 'npm' # Cache npm dependencies
+
+      - name: Install dependencies
+        run: npm ci # Clean install of dependencies
+
+      - name: Build the project
+        run: npm run build --if-present # Build the project if a build script is present
+
+      - name: List build output directory
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Contents of the build directory:"
+          ls -la dist  # Adjust this if your output directory is different
 
       - name: Upload built files
-        if: github.ref == 'refs/heads/main'
-        id: deployment
-        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        if: github.ref == 'refs/heads/main' # Only upload if on the main branch
+        id: upload
+        uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
         with:
-          path: dist/*
+          path: dist/* # Path to the built artifacts (adjust if necessary)
 
       - name: Cleanup
         run: |
-          rm -rf venv
-          rm -rf ${{ github.event.repository.name }}
+          rm -rf venv  # Clean up virtual environment if applicable
+          rm -rf ${{ github.event.repository.name }}  # Remove specific directories if needed
 
   deploy:
     if: github.ref == 'refs/heads/main'
