@@ -47,7 +47,7 @@ jobs:
         id: upload
         uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
         with:
-          path: dist/* # Path to the built artifacts (adjust if necessary)
+          path: dist/** # Path to the built artifacts (adjust if necessary)
 
       - name: Cleanup
         run: |
