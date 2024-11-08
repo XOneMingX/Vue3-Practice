@@ -1,23 +1,21 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Node.js CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: develop/github-actions
+    branches:
+      - develop/github-actions
+      - master
   pull_request:
-    branches: develop/github-actions
+    branches:
+      - develop/github-actions
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/develop/github-actions' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -27,23 +25,27 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build --if-present
-      # - name: Upload built files
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: built-artifacts
-      #     path: dist/*
-      - name: Send mail
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
-          subject: 'The Workflow has been Activated' # Add a subject here
-          to: 'yatming.work@gmail.com' # The recipient's email address
-          from: '${{ secrets.MAIL_USERNAME }}' # The sender's email address
-          body: 'The workflow has been triggered successfully!' # The email body
+
       - name: Cleanup
         run: |
           rm -rf venv
-          rm -rf ${{github.event.repository.name}}
+          rm -rf ${{ github.event.repository.name }}
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Install and Build
+        run: npm install && npm run build
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: build
