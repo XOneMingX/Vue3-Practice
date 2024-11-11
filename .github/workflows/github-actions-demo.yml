@@ -50,12 +50,12 @@ jobs:
         with:
           path: dist/** # Corrected path to the built artifacts
 
-      - name: Cleanup
-        # Clean up virtual environment if applicable
-        # Remove specific directories if needed
-        run: |
-          rm -rf venv 
-          rm -rf ${{ github.event.repository.name }}
+      # - name: Cleanup
+      # Clean up virtual environment if applicable
+      # Remove specific directories if needed
+      # run: |
+      #   rm -rf venv
+      #   rm -rf ${{ github.event.repository.name }}
 
   deploy:
     if: github.ref == 'refs/heads/main'
