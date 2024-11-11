@@ -4,6 +4,7 @@ import Cookies from 'js-cookie'
 import HomeView from '../views/HomeView.vue'
 import { isTokenValid } from '@/utility/TokenValidationUtil'
 import LoginView from '@/views/LoginView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const authRoutes = [
   {
@@ -47,6 +48,8 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   const token = Cookies.get('jwt')
   const isAuthenticated = isTokenValid(token)
+  const authStore = useAuthStore()
+  authStore.setLoginState(isAuthenticated)
 
   console.log('Navigating to:', to.name) // Debugging statement
   console.log('Matched routes:', to.matched) // Debugging statement

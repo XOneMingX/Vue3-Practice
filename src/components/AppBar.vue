@@ -1,19 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Cookies from 'js-cookie'
+import { useRouter } from 'vue-router'
 
-const userMenu = ref([
-  { title: 'About' },
-  { title: 'Profile' },
-  { title: 'Setting' },
-  { title: 'Logout', action: 'logout' }
-])
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
+const router = useRouter()
+
+// Create a computed property for userMenu
+const userMenu = computed(() => {
+  return authStore.isAuthenticated
+    ? [
+        { title: 'About' },
+        { title: 'Profile' },
+        { title: 'Setting' },
+        { title: 'Logout', action: 'logout' }
+      ]
+    : [
+        { title: 'About' },
+        { title: 'Profile' },
+        { title: 'Login', action: 'login' } // Change to Login when not authenticated
+      ]
+})
+
+// Handle item click
 const handleItemClick = (item: { title: string; action?: string }) => {
   if (item.action === 'logout') {
     Cookies.remove('jwt')
-    // Refresh the page
+    authStore.setLoginState(false) // Update the auth state in Pinia
     window.location.reload()
+  } else if (item.action === 'login') {
+    // Handle login logic (e.g., redirect to login page)
+    router.push('/login')
+    // You can redirect to login page or handle login process here
   } else {
     // Handle other menu actions if needed
     console.log(`Clicked on ${item.title}`)
