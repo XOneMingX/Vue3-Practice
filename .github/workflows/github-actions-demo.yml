@@ -3,19 +3,20 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - develop/github-actions
       - main
+      - develop/github-actions
   pull_request:
     branches:
+      - main
       - develop/github-actions
 
 jobs:
-  # Build job
+  # Build & Test
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x] # Specify the Node.js versions to test against
+        node-version: [18.x, 20.x] # Specify the Node.js versions to test against
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,16 +44,18 @@ jobs:
           ls -la dist || echo "The dist directory does not exist."
 
       - name: Upload built files
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && startsWith(matrix.node-version, '18.') # Condition to check Node.js version
         id: upload
         uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
         with:
-          path: dist # Corrected path to the built artifacts
+          path: dist/** # Corrected path to the built artifacts
 
       - name: Cleanup
+        # Clean up virtual environment if applicable
+        # Remove specific directories if needed
         run: |
-          rm -rf venv  # Clean up virtual environment if applicable
-          rm -rf ${{ github.event.repository.name }}  # Remove specific directories if needed
+          rm -rf venv 
+          rm -rf ${{ github.event.repository.name }}
 
   deploy:
     if: github.ref == 'refs/heads/main'
