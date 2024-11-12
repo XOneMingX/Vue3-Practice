@@ -1,80 +1,80 @@
-# name: CI/CD Pipeline
+name: CI/CD Pipeline
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - develop/github-actions
-#   pull_request:
-#     branches:
-#       - main
-#       - develop/github-actions
+on:
+  push:
+    branches:
+      - main
+      - develop/github-actions
+  pull_request:
+    branches:
+      - main
+      - develop/github-actions
 
-# jobs:
-#   # Build & Test
-#   build:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         node-version: [18.x, 20.x] # Specify the Node.js versions to test against
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
+jobs:
+  # Build & Test
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Specify the Node.js versions to test against
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-#       - name: Set up Node.js ${{ matrix.node-version }}
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: ${{ matrix.node-version }}
-#           cache: 'npm' # Cache npm dependencies
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm' # Cache npm dependencies
 
-#       - name: Install dependencies
-#         run: npm ci # Clean install of dependencies
+      - name: Install dependencies
+        run: npm ci # Clean install of dependencies
 
-#       - name: Build the project
-#         run: npm run build --if-present # Build the project if a build script is present
+      - name: Build the project
+        run: npm run build --if-present # Build the project if a build script is present
 
-#       # Debugging step to verify output
-#       - name: List build output directory
-#         run: |
-#           echo "Current directory:"
-#           pwd
-#           echo "Contents of the project directory:"
-#           ls -la
-#           echo "Contents of the output directory (dist):"
-#           ls -la dist || echo "The dist directory does not exist."
+      # Debugging step to verify output
+      - name: List build output directory
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Contents of the project directory:"
+          ls -la
+          echo "Contents of the output directory (dist):"
+          ls -la dist || echo "The dist directory does not exist."
 
-#       - name: Upload built files
-#         if: github.ref == 'refs/heads/main' && startsWith(matrix.node-version, '18.')
-#         id: upload
-#         uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
-#         with:
-#           path: dist # Corrected path to the built artifacts
+      - name: Upload built files
+        if: github.ref == 'refs/heads/main' && startsWith(matrix.node-version, '18.')
+        id: upload
+        uses: actions/upload-pages-artifact@v3 # Upload the built artifacts
+        with:
+          path: dist # Corrected path to the built artifacts
 
-#       - name: Cleanup
-#         # Clean up virtual environment if applicable
-#         # Remove specific directories if needed
-#         run: |
-#           rm -rf venv
-#           rm -rf ${{ github.event.repository.name }}
+      - name: Cleanup
+        # Clean up virtual environment if applicable
+        # Remove specific directories if needed
+        run: |
+          rm -rf venv
+          rm -rf ${{ github.event.repository.name }}
 
-#   deploy:
-#     if: github.ref == 'refs/heads/main'
-#     # Add a dependency to the build job
-#     needs: build
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    # Add a dependency to the build job
+    needs: build
 
-#     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-#     permissions:
-#       pages: write # to deploy to Pages
-#       id-token: write # to verify the deployment originates from an appropriate source
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
 
-#     # Deploy to the github-pages environment
-#     environment:
-#       name: github-pages
-#       url: ${{ steps.deployment.outputs.page_url }}
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-#     # Specify runner + deployment step
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Deploy to GitHub Pages
-#         id: deployment
-#         uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
