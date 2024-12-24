@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 
 import { useArticlesStore } from '@/stores/articles'
-import ArticlesItem from './ArticlesItem.vue'
+import ArticlesItem from '@/components/Articles/ArticlesItem.vue'
 import { type Article } from '@/types/Article'
 import articleAxios from '@/axios/articlesAxios'
 

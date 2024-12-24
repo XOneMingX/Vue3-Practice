@@ -56,7 +56,8 @@ const handleItemClick = (item: { title: string; action?: string }) => {
         >Write</v-btn
       >
       <v-btn to="/">Home</v-btn>
-      <v-btn to="/about">About</v-btn>
+      <v-btn to="/articles">Articles</v-btn>
+      <v-btn to="/todos">Todos</v-btn>
       <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn color="primary" v-bind="props" icon="mdi-account-circle"> </v-btn>

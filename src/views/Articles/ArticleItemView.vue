@@ -42,12 +42,17 @@ const articleData = computed<Article | null>(() => {
   return articles.value?.find((a) => a.id?.toString() === articleId) || null
 })
 
+const isAllLoaded = computed<boolean>(() => {
+  return dataLoaded.value && imageLoaded.value
+})
+
 const imageUrl = computed(() => {
   return `https://picsum.photos/900/400?random=${Math.random()}`
 })
 
 const onImageLoad = () => {
   imageLoaded.value = true
+  console.log('loading')
   checkLoadingStatus()
 }
 </script>
@@ -62,7 +67,9 @@ const onImageLoad = () => {
       </div>
       <div class="me-auto">
         <div>{{ articleData.author }}</div>
-        <div class="text-grey-darken-1">{{ new Date(articleData.createdTime).toDateString() }}</div>
+        <div class="text-grey-darken-1">
+          {{ new Date(articleData.createdTime).toDateString() }}
+        </div>
       </div>
       <div>
         <v-btn icon="mdi-pencil" variant="text" :to="`/editArticle/${route.params.id}`"></v-btn>
@@ -86,9 +93,9 @@ const onImageLoad = () => {
       cover
       @load="onImageLoad"
     ></v-img>
-    <div class="text-body-1 mt-5" v-html="articleData.content"></div>
+    <div v-if="imageLoaded" class="text-body-1 mt-5" v-html="articleData.content"></div>
   </div>
-  <div v-else-if="!isLoading">
+  <div v-else>
     <p>Article not found.</p>
   </div>
 </template>

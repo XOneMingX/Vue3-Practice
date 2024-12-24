@@ -15,12 +15,17 @@ const authRoutes = [
   {
     path: '/article/:id',
     name: 'Article',
-    component: () => import('../views/ArticleView.vue')
+    component: () => import('../views/Articles/ArticleItemView.vue')
   },
   {
     path: '/editArticle/:id?',
     name: 'EditArticle',
-    component: () => import('../views/EditArticleView.vue')
+    component: () => import('../views/Articles/EditArticleView.vue')
+  },
+  {
+    path: '/todos',
+    name: 'Todos',
+    component: () => import('../views/Todos/TodoView.vue')
   }
 ]
 
@@ -29,6 +34,11 @@ const publicRoutes = [
     path: '/login',
     name: 'Login',
     component: LoginView
+  },
+  {
+    path: '/articles/',
+    name: 'Articles',
+    component: () => import('../views/Articles/ArticlesListView.vue')
   },
   {
     path: '/about',
