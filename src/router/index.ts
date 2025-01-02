@@ -10,49 +10,49 @@ const authRoutes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView
+    component: HomeView,
   },
   {
     path: '/article/:id',
     name: 'Article',
-    component: () => import('../views/Articles/ArticleItemView.vue')
+    component: () => import('../views/Articles/ArticleItemView.vue'),
   },
   {
     path: '/editArticle/:id?',
     name: 'EditArticle',
-    component: () => import('../views/Articles/EditArticleView.vue')
+    component: () => import('../views/Articles/EditArticleView.vue'),
   },
   {
     path: '/todos',
     name: 'Todos',
-    component: () => import('../views/Todos/TodoView.vue')
-  }
+    component: () => import('../views/Todos/TodoListView.vue'),
+  },
 ]
 
 const publicRoutes = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginView
+    component: LoginView,
   },
   {
     path: '/articles/',
     name: 'Articles',
-    component: () => import('../views/Articles/ArticlesListView.vue')
+    component: () => import('../views/Articles/ArticlesListView.vue'),
   },
   {
     path: '/about',
     name: 'About',
-    component: () => import('../views/AboutView.vue')
-  }
+    component: () => import('../views/AboutView.vue'),
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...authRoutes.map((route) => ({ ...route, meta: { requiresAuth: true } })),
-    ...publicRoutes
-  ]
+    ...publicRoutes,
+  ],
 })
 
 router.beforeEach((to, from) => {
@@ -64,7 +64,10 @@ router.beforeEach((to, from) => {
   console.log('Navigating to:', to.name) // Debugging statement
   console.log('Matched routes:', to.matched) // Debugging statement
 
-  if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated) {
+  if (
+    to.matched.some((record) => record.meta.requiresAuth) &&
+    !isAuthenticated
+  ) {
     console.log('Redirecting to Login')
     return { name: 'Login' }
   }

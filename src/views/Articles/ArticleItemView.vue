@@ -1,60 +1,60 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { useArticlesStore } from '@/stores/articles'
-import { type Article } from '@/types/Article'
-import { useLoading } from '@/composables/useLoading'
-import articleAxios from '@/axios/articlesAxios'
+  import { ref, computed, onMounted } from 'vue'
+  import { useRoute } from 'vue-router'
+  import { useArticlesStore } from '@/stores/articles'
+  import { type Article } from '@/types/Article'
+  import { useLoading } from '@/composables/useLoading'
+  import articleAxios from '@/axios/articlesAxios'
 
-const route = useRoute()
-const articleStore = useArticlesStore()
-const articles = ref<Article[]>([])
-const { isLoading, startLoading, stopLoading } = useLoading()
+  const route = useRoute()
+  const articleStore = useArticlesStore()
+  const articles = ref<Article[]>([])
+  const { isLoading, startLoading, stopLoading } = useLoading()
 
-const dataLoaded = ref(false)
-const imageLoaded = ref(false)
+  const dataLoaded = ref(false)
+  const imageLoaded = ref(false)
 
-const checkLoadingStatus = () => {
-  if (dataLoaded.value && imageLoaded.value) {
-    stopLoading()
-  }
-}
-
-onMounted(async () => {
-  startLoading() // Start loading immediately
-
-  try {
-    if (articleStore.articles.length === 0) {
-      const fetchArticles = await articleAxios.getArticles()
-      articles.value = fetchArticles.data
-    } else {
-      articles.value = articleStore.articles
+  const checkLoadingStatus = () => {
+    if (dataLoaded.value && imageLoaded.value) {
+      stopLoading()
     }
-  } finally {
-    dataLoaded.value = true
+  }
+
+  onMounted(async () => {
+    startLoading() // Start loading immediately
+
+    try {
+      if (articleStore.articles.length === 0) {
+        const fetchArticles = await articleAxios.getArticles()
+        articles.value = fetchArticles.data
+      } else {
+        articles.value = articleStore.articles
+      }
+    } finally {
+      dataLoaded.value = true
+      checkLoadingStatus()
+    }
+  })
+
+  // Computed property to find the article based on the route parameter
+  const articleData = computed<Article | null>(() => {
+    const articleId = route.params.id
+    return articles.value?.find((a) => a.id?.toString() === articleId) || null
+  })
+
+  const isAllLoaded = computed<boolean>(() => {
+    return dataLoaded.value && imageLoaded.value
+  })
+
+  const imageUrl = computed(() => {
+    return `https://picsum.photos/900/400?random=${Math.random()}`
+  })
+
+  const onImageLoad = () => {
+    imageLoaded.value = true
+    console.log('loading')
     checkLoadingStatus()
   }
-})
-
-// Computed property to find the article based on the route parameter
-const articleData = computed<Article | null>(() => {
-  const articleId = route.params.id
-  return articles.value?.find((a) => a.id?.toString() === articleId) || null
-})
-
-const isAllLoaded = computed<boolean>(() => {
-  return dataLoaded.value && imageLoaded.value
-})
-
-const imageUrl = computed(() => {
-  return `https://picsum.photos/900/400?random=${Math.random()}`
-})
-
-const onImageLoad = () => {
-  imageLoaded.value = true
-  console.log('loading')
-  checkLoadingStatus()
-}
 </script>
 
 <template>
