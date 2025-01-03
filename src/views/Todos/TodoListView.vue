@@ -20,6 +20,10 @@
       todoList.value = fetchTodos.data.sort(
         (a: Todo, b: Todo) => a.sequence - b.sequence,
       )
+      todoList.value.forEach((todo, index) => {
+        todo.sequence = index + 1 // Set the new sequence starting from 1
+      })
+
       todoStore.setTodos(todoList.value)
       console.log(todoList.value)
     } catch (error) {
@@ -60,7 +64,7 @@
     lastModifiedUserId: 1001,
   })
 
-  const handleAddTodo = () => {
+  const handleAddTodo = async () => {
     if (todoContent.task.trim() === '') {
       // Handle empty task input
       console.warn('Task cannot be empty')
@@ -78,12 +82,22 @@
       lastModifiedUserId: 1001, // Adjust as necessary
     }
 
-    // Add the new todo to the list
-    todoList.value.push(newTodo)
+    try {
+      // Send the new todo to the backend and wait for the response
+      const response = await todosAxios.createTodo(newTodo)
 
-    // Reset the task input field
-    todoContent.task = ''
-    isAddNewTodo.value = false
+      // The backend should return the complete todo, including the generated ID
+      const createdTodo = response.data
+
+      // Add the created todo with the backend-generated ID to the list
+      todoList.value.push(createdTodo)
+
+      // Reset the task input field
+      todoContent.task = ''
+      isAddNewTodo.value = false
+    } catch (error) {
+      console.error('Error creating todo:', error)
+    }
   }
 
   const handleEditTodo = (id?: string) => {
@@ -96,17 +110,23 @@
     console.log(`Editing todo with id: ${id}`)
   }
 
-  const handleSaveTodo = (id?: string) => {
-    if (!id) {
-      console.warn('Todo ID is undefined')
-      return // Handle the case where ID is not provided
+  const handleSaveTodo = async (id?: string) => {
+    if (!id) return console.warn('Todo ID is undefined')
+
+    const todo = todoList.value.find((todo) => todo.id === id)
+    if (todo) {
+      const updatedTodo: Todo = {
+        ...todo,
+        task: todo.task.trim(), // Use the current task value
+        status: todo.status,
+        lastModifiedTime: new Date(),
+        lastModifiedUserId: Math.floor(Math.random() * 1000 + 1), // Adjust as necessary
+      }
+      await todosAxios.updateTodo(id, updatedTodo)
+      currentlyEditingId.value = null // Exit edit mode after saving
+    } else {
+      return console.warn('Todo is not existed')
     }
-    const todoIndex = todoList.value.findIndex((todo) => todo.id === id)
-    if (todoIndex !== -1) {
-      // Save the changes to the todo
-      console.log('Saved todo:', todoList.value[todoIndex])
-    }
-    currentlyEditingId.value = null // Exit edit mode after saving
   }
 
   const handleCancelEdit = () => {
@@ -123,17 +143,24 @@
     todoIdToRemove.value = id // Store the ID to remove
   }
 
-  const onConfirm = () => {
+  const onRemoveConfirm = async () => {
     if (todoIdToRemove.value !== null) {
       todoList.value = todoList.value.filter(
         (todo) => todo.id !== todoIdToRemove.value,
       )
+
+      // Update the sequence numbers
+      todoList.value.forEach((todo, index) => {
+        todo.sequence = index + 1 // Set the new sequence starting from 1
+      })
+
+      await todosAxios.deleteTodo(todoIdToRemove.value)
       todoIdToRemove.value = null // Reset the ID after confirmation
     }
     isRemoveDialogOpen.value = false
   }
 
-  const onCancel = () => {
+  const onRemoveCancel = () => {
     isRemoveDialogOpen.value = false
   }
 </script>
@@ -269,8 +296,8 @@
       content="Are you sure you want to remove this todo?"
       confirmButtonText="Yes"
       cancelButtonText="No"
-      @confirmClick="onConfirm"
-      @cancelClick="onCancel"
+      @confirmClick="onRemoveConfirm"
+      @cancelClick="onRemoveCancel"
     />
   </div>
 </template>

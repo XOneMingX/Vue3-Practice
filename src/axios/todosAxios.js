@@ -12,6 +12,9 @@ function createTodo(todo) {
 function updateTodo(id, todo) {
   return axiosClient.put(`/todos/${id}`, todo)
 }
+function updateAllTodos(todos) {
+  return axiosClient.put(`/todos/updateAllTodos`, todos)
+}
 function deleteTodo(id) {
   return axiosClient.delete(`/todos/${id}`)
 }
@@ -21,5 +24,6 @@ export default {
   getTodoById,
   createTodo,
   updateTodo,
+  updateAllTodos,
   deleteTodo,
 }
