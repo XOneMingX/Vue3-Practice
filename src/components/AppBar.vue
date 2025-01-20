@@ -12,17 +12,22 @@
   // Create a computed property for userMenu
   const userMenu = computed(() => {
     return authStore.isAuthenticated
-      ? [{ title: 'About' }, { title: 'Profile' }, { title: 'Setting' }, { title: 'Logout' }]
+      ? [
+          { title: 'About' },
+          { title: 'Profile' },
+          { title: 'Setting' },
+          { title: 'Logout' },
+        ]
       : [
           { title: 'About' },
           { title: 'Profile' },
-          { title: 'Login' } // Change to Login when not authenticated
+          { title: 'Login' }, // Change to Login when not authenticated
         ]
   })
 
   const practiceMenu = ref([
     { title: 'Article', path: 'articles' },
-    { title: 'Todo', path: 'todos' }
+    { title: 'Todo', path: 'todos' },
   ])
 
   // Handle item click
@@ -41,7 +46,10 @@
     }
   }
 
-  const handlePracticeMeunItemClick = (item: { title: string; path?: string }) => {
+  const handlePracticeMeunItemClick = (item: {
+    title: string
+    path?: string
+  }) => {
     router.push(`/${item.path}`)
   }
 </script>
@@ -49,12 +57,17 @@
 <template>
   <v-layout>
     <v-app-bar app>
-      <router-link to="/" style="text-decoration: none; color: inherit" class="ml-5">
+      <router-link
+        to="/"
+        style="text-decoration: none; color: inherit"
+        class="ml-5"
+      >
         <v-toolbar-title>My Application</v-toolbar-title>
       </router-link>
       <v-spacer></v-spacer>
 
       <v-btn to="/">Home</v-btn>
+      <v-btn to="/testPage">Test Page</v-btn>
       <menu-button
         :items="practiceMenu"
         buttonText="Practices"

@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@formkit/vue": "^1.6.9",
     "@mdi/js": "^7.4.47",
     "@tinymce/tinymce-vue": "^6.0.1",
     "@types/js-cookie": "^3.0.6",
@@ -23,6 +24,7 @@
     "tinymce": "^7.3.0",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.7.1"
   },
   "devDependencies": {

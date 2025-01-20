@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import draggable from 'vuedraggable'
+
   import { type Todo, TodoStatus } from '@/types/Todo'
   import AlertDialog from '@/components/Dialogs/AlertDialog.vue'
   import { useTodosStore } from '@/stores/todos'
@@ -12,6 +14,7 @@
   const currentlyEditingId = ref<string | null>(null) // Tracks which row is being edited
   const isRemoveDialogOpen = ref<boolean>(false)
   const todoIdToRemove = ref<string | null>(null) // New reactive reference for the ID
+  const isDrag = ref(false)
 
   onMounted(async () => {
     try {
@@ -100,6 +103,14 @@
     }
   }
 
+  const onDragEnd = async () => {
+    todoList.value.forEach((element, index) => {
+      element.sequence = index + 1
+    })
+
+    await todosAxios.updateAllTodos(todoList.value)
+  }
+
   const handleEditTodo = (id?: string) => {
     if (!id) {
       console.warn('Todo ID is undefined')
@@ -114,11 +125,13 @@
     if (!id) return console.warn('Todo ID is undefined')
 
     const todo = todoList.value.find((todo) => todo.id === id)
+
     if (todo) {
       const updatedTodo: Todo = {
         ...todo,
         task: todo.task.trim(), // Use the current task value
         status: todo.status,
+        sequence: todo.sequence,
         lastModifiedTime: new Date(),
         lastModifiedUserId: Math.floor(Math.random() * 1000 + 1), // Adjust as necessary
       }
@@ -167,12 +180,18 @@
 
 <template>
   <div>
-    <div class="d-flex justify-center align-center">
-      <h1 class="text-center">To Do List</h1>
+    <div class="d-flex justify-between align-center">
+      <v-btn
+        variant="outlined"
+        prepend-icon="mdi-menu-swap"
+        @click="isDrag = !isDrag"
+      >
+        Move
+      </v-btn>
+      <h1 class="flex-grow-1 text-center">To Do List</h1>
       <v-btn
         variant="outlined"
         prepend-icon="mdi-plus"
-        class="position-absolute right-0 mr-10"
         @click="isAddNewTodo = true"
       >
         New
@@ -207,88 +226,113 @@
           <th class="text-center">Remove</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="todo in todoList" :key="todo.id">
-          <td>{{ todo.sequence }}</td>
-          <!-- Task Column -->
-          <td width="50%">
-            <template v-if="currentlyEditingId === todo.id">
-              <v-text-field
-                variant="outlined"
-                v-model="todo.task"
-                density="compact"
-                hide-details
-              ></v-text-field>
-            </template>
-            <template v-else>
-              {{ todo.task }}
-            </template>
-          </td>
-          <!-- Status Column -->
-          <td width="20%">
-            <template v-if="currentlyEditingId === todo.id">
-              <v-select
-                :items="[
-                  TodoStatus.Pending,
-                  TodoStatus.InProgress,
-                  TodoStatus.Completed,
-                  TodoStatus.Archived,
-                ]"
-                v-model="todo.status"
-                density="compact"
-                hide-details
-              ></v-select>
-            </template>
-            <template v-else>
-              <v-btn
-                variant="outlined"
-                readonly
-                :class="getStatusClass(todo.status)"
-              >
-                {{ todo.status }}
-              </v-btn>
-            </template>
-          </td>
-          <!-- Edit/Save/Cancel Buttons -->
-          <td class="text-center">
-            <template v-if="currentlyEditingId === todo.id">
-              <v-btn
-                variant="outlined"
-                color="green"
-                class="rounded-lg"
-                icon="mdi-check"
-                @click="handleSaveTodo(todo.id)"
-              ></v-btn>
-              <v-btn
-                variant="outlined"
-                color="grey"
-                class="rounded-lg"
-                icon="mdi-close"
-                @click="handleCancelEdit"
-              ></v-btn>
-            </template>
-            <template v-else>
-              <v-btn
-                variant="outlined"
-                class="rounded-lg"
-                @click="handleEditTodo(todo.id)"
-                icon="mdi-pencil"
-              ></v-btn>
-            </template>
-          </td>
+      <draggable
+        v-model="todoList"
+        tag="tbody"
+        animation="300"
+        handle=".handle"
+        @start="onStart"
+        @end="onDragEnd"
+      >
+        <template #item="{ element: todo }">
+          <tr>
+            <td>
+              <div class="d-flex align-center">
+                {{ todo.sequence }}
+                <v-btn
+                  icon="mdi-unfold-more-horizontal"
+                  variant="text"
+                  :ripple="false"
+                  class="handle"
+                  v-if="isDrag"
+                  size="x-small"
+                ></v-btn>
+              </div>
+            </td>
+            <!-- Task Column -->
+            <td width="50%">
+              <template v-if="currentlyEditingId === todo.id">
+                <v-text-field
+                  variant="outlined"
+                  v-model="todo.task"
+                  density="compact"
+                  hide-details
+                ></v-text-field>
+              </template>
+              <template v-else>
+                {{ todo.task }}
+              </template>
+            </td>
+            <!-- Status Column -->
+            <td width="20%">
+              <template v-if="currentlyEditingId === todo.id">
+                <v-select
+                  :items="[
+                    TodoStatus.Pending,
+                    TodoStatus.InProgress,
+                    TodoStatus.Completed,
+                    TodoStatus.Archived,
+                  ]"
+                  v-model="todo.status"
+                  density="compact"
+                  hide-details
+                ></v-select>
+              </template>
+              <template v-else>
+                <v-btn
+                  variant="outlined"
+                  readonly
+                  :class="getStatusClass(todo.status)"
+                >
+                  {{ todo.status }}
+                </v-btn>
+              </template>
+            </td>
+            <!-- Edit/Save/Cancel Buttons -->
+            <td class="text-center">
+              <template v-if="currentlyEditingId === todo.id">
+                <div class="d-flex justify-center ga-2">
+                  <v-btn
+                    variant="outlined"
+                    color="green"
+                    class="rounded-lg"
+                    icon="mdi-check"
+                    size="small"
+                    @click="handleSaveTodo(todo.id)"
+                  ></v-btn>
+                  <v-btn
+                    variant="outlined"
+                    color="grey"
+                    class="rounded-lg"
+                    icon="mdi-close"
+                    size="small"
+                    @click="handleCancelEdit"
+                  ></v-btn>
+                </div>
+              </template>
+              <template v-else>
+                <v-btn
+                  variant="outlined"
+                  class="rounded-lg"
+                  @click="handleEditTodo(todo.id)"
+                  icon="mdi-pencil"
+                ></v-btn>
+              </template>
+            </td>
 
-          <!-- Remove Button -->
-          <td class="text-center" width="10%">
-            <v-btn
-              variant="outlined"
-              color="red"
-              class="rounded-lg"
-              @click="handleRemoveTodo(todo.id)"
-              icon="mdi-delete"
-            ></v-btn>
-          </td>
-        </tr>
-      </tbody>
+            <!-- Remove Button -->
+            <td class="text-center" width="10%">
+              <v-btn
+                variant="outlined"
+                color="red"
+                class="rounded-lg"
+                @click="handleRemoveTodo(todo.id)"
+                icon="mdi-delete"
+              ></v-btn>
+            </td>
+          </tr>
+        </template>
+      </draggable>
     </v-table>
     <AlertDialog
       :status="isRemoveDialogOpen"

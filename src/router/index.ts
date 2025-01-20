@@ -5,6 +5,7 @@ import HomeView from '../views/HomeView.vue'
 import { isTokenValid } from '@/utility/TokenValidationUtil'
 import LoginView from '@/views/LoginView.vue'
 import { useAuthStore } from '@/stores/auth'
+import DemoTestPage from '@/views/DemoTest/DemoTestPage.vue'
 
 const authRoutes = [
   {
@@ -26,6 +27,11 @@ const authRoutes = [
     path: '/todos',
     name: 'Todos',
     component: () => import('../views/Todos/TodoListView.vue'),
+  },
+  {
+    path: '/testPage',
+    name: 'testPage',
+    component: DemoTestPage,
   },
 ]
 
