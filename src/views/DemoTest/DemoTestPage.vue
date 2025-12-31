@@ -21,7 +21,6 @@
     list.value.forEach((element, index) => {
       element.sequence = index + 1
     })
-    console.log('结束拖拽')
   }
 </script>
 

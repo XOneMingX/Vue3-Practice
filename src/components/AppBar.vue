@@ -28,6 +28,7 @@
   const practiceMenu = ref([
     { title: 'Article', path: 'articles' },
     { title: 'Todo', path: 'todos' },
+    { title: 'Chat Room', path: 'chatRoom' },
   ])
 
   // Handle item click
